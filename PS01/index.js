@@ -1,18 +1,14 @@
 var svg = d3.select('svg').append('g').attr('transform','translate(100,100)');
 
-//set up variables to hold two versions of the data, one for each year
-var data2016;
-var data2000;
-
-//set up a tracker variable to watch the button click state
 var clicked = true;
 
-//set up scales to position circles using the data
-var scaleX = d3.scalePoint().domain(["16-19", "20-24", "25-34", "35-44", "45-54", "55-64","65+"]).range([0, 600]);
-var scaleY = d3.scaleLinear().domain([0,1200]).range([400, 0]);  //remember that 0,0 is at the top of the screen! 300 is the lowest value on the y axis
 
+var scaleX = d3.scalePoint().domain(["0","read a book", "listen to music", "play game", "social media",
+    "chat", "wondering","take a rest"]).range([0, 600]);
+var scaleY = d3.scaleLinear().domain([0,100]).range([400, 0]);
 
-// Add the x Axis
+var dataIn = [];
+
 svg.append("g")
     .attr('transform','translate(0,400)')  //move the x axis from the top of the y axis to the bottom
     .call(d3.axisBottom(scaleX));
@@ -20,98 +16,176 @@ svg.append("g")
 svg.append("g")
     .call(d3.axisLeft(scaleY));
 
+d3.csv('./Subway-Activity-Services.csv', function(dataIn) {
 
-//import the data from the .csv file
-d3.csv('./incomeData.csv', function(dataIn){
-
-    data2016 = dataIn.filter(function(d){
-        return d.year == 2016;
+    dataFemale = dataIn.filter(function(d){
+        d.female;
     });
 
-    data2000 = dataIn.filter(function(d){
-        return d.year == 2000;
+    dataMale = dataIn.filter(function(d){
+        d.male;
     });
 
 
-    /*nestedData = d3.nest()
-        .key(function(d){return d.year})
-        .entries(dataIn);
-
-    console.log(nestedData.filter(function(d){return d.key == "2016"})[0].values);
-    */
-
+  console.log(dataIn);
 
     svg.append('text')
-        .text('Weekly income by age and gender')
-        .attr('transform','translate(300, -20)')
-        .style('text-anchor','middle');
+        .text('What Do you Normally Do on the Subway?')
+        .attr('transform','translate(300, -50)')
+        .style('text-anchor','middle')
+        .attr('font-size',30);
 
     svg.append('text')
-        .text('age group')
-        .attr('transform','translate(260, 440)');
+        .text('Percent')
+        .attr('transform', 'translate(-40,250)rotate(270)');
 
     svg.append('text')
-        .text('weekly income')
-        .attr('transform', 'translate(-50,250)rotate(270)');
+        .text('Total')
+        .attr('transform','translate(682, 135)');
 
-    //bind the data to the d3 selection, but don't draw it yet
-    svg.selectAll('circles')
-        .data(data2016)
-        .enter()
-        .append('circle')
-        .attr('class','w_dataPoints')
-        .attr('r', 5)
-        .attr('fill', "lime");
+    svg.append('text')
+        .text('Female')
+        .attr('transform','translate(675, 235)');
+
+    svg.append('text')
+        .text('Male')
+        .attr('transform','translate(682, 335)');
 
     svg.selectAll('circles')
-        .data(data2016)
+        .data(dataIn)
         .enter()
         .append('circle')
-        .attr('class','m_dataPoints')
+        .attr('class','total')
         .attr('r', 5)
-        .attr('fill', "blue");
+        .attr('fill', "mediumslateblue");
 
-    //call the drawPoints function below, and hand it the data2016 variable with the 2016 object array in it
-    drawPoints(data2016);
+    svg.selectAll('circles')
+        .data(dataIn)
+        .enter()
+        .append('circle')
+        .attr('class','female')
+        .attr('r', 5)
+        .attr('fill', "pink");
+
+    svg.selectAll('circles')
+        .data(dataIn)
+        .enter()
+        .append('circle')
+        .attr('class','male')
+        .attr('r', 5)
+        .attr('fill', "lightskyblue");
+
+    drawPoints(dataIn);
+
+    $('#testCircle').tooltip();
 
 });
 
-//this function draws the actual data points as circles. It's split from the enter() command because we want to run it many times
-//without adding more circles each time.
-function drawPoints(pointData){
 
-    svg.selectAll('.w_dataPoints')  //select all of the circles with dataPoints class that we made using the enter() commmand above
-        .data(pointData)          //re-attach them to data (necessary for when the data changes from 2016 to 2017)
-        .attr('cx',function(d){   //look up values for all the attributes that might have changed, and draw the new circles
-            return scaleX(d.age);
+
+
+
+function drawPoints(pointData) {
+
+    svg.selectAll('.total')
+        .data(pointData)
+
+        .attr('cx', function (d) {
+            return scaleX(d.things);
         })
-        .attr('cy',function(d){
-            return scaleY(d.women);
+        .attr('cy', function (d) {
+            return scaleY(d.total);
+        })
+        .attr('data-toggle', 'tooltip')
+
+        .attr('title', function (d) {
+            return d.total
         });
 
-    svg.selectAll('.m_dataPoints')  //do the same for the men's data series
+    svg.selectAll('.female')
         .data(pointData)
-        .attr('cx',function(d){
-            return scaleX(d.age);
+
+        .attr('cx', function (d) {
+            return scaleX(d.things);
         })
-        .attr('cy',function(d){
-            return scaleY(d.men);
+        .attr('cy', function (d) {
+            return scaleY(d.female);
+        })
+        .attr('data-toggle', 'tooltip')
+
+        .attr('title', function(d) {
+            return d.femal
+        });
+
+    svg.selectAll('.male')
+        .data(pointData)
+
+        .attr('cx', function (d) {
+            return scaleX(d.things);
+        })
+        .attr('cy', function (d) {
+            return scaleY(d.male);
+        })
+        .attr('data-toggle', 'tooltip')
+
+        .attr('title', function(d) {
+            return d.mal
         });
 }
 
-//this function runs when the HTML button is clicked.
-function buttonClicked(){
+svg.append('circle')
+    .attr('cx',700)
+    .attr('cy',100)
+    .attr('r',20)
+    .attr('fill','mediumslateblue');
 
-    //check to see whether the tracker variable is true. If it is, use the 2017 data set
+svg.append('circle')
+    .attr('cx',700)
+    .attr('cy',200)
+    .attr('r',20)
+    .attr('fill','pink');
+
+svg.append('circle')
+    .attr('cx',700)
+    .attr('cy',300)
+    .attr('r',20)
+    .attr('fill','lightskyblue');
+
+
+function buttonClicked(){
+    console.log('here');
+
     if(clicked == true){
-        drawPoints(data2000);  //call the draw function again, to redraw the circles
-        clicked = false;       //reset the value of the tracker variable
+
+        svg.selectAll('.female')
+            .attr('cy', function (d) {
+                return scaleY(d.female);
+            })
+            .attr('title', function(d) {
+                return d.femal
+            });
+        clicked = false;
     }
-    else{   //if the tracker variable is not true, use the 2016 data set
-        drawPoints(data2016);
+    else{
+
+        svg.selectAll('.total')
+            .attr('cy', function (d) {
+                return scaleY(d.total);
+            })
+            .attr('title', function(d) {
+                return d.total
+            });
         clicked = true;
     }
 
-
-
 }
+
+
+
+
+
+
+
+
+
+

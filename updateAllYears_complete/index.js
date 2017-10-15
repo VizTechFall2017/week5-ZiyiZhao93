@@ -18,10 +18,11 @@ svg.append("g")
 
 var div = d3.select("body").append("div")
     .attr("class", "tooltip")
-    .style("opacity", 0);
+    .style("opacity", 0.5);
 
 //import the data from the .csv file
 d3.csv('./incomeDataAllYears.csv', function(dataIn){
+
 
     nestedData = d3.nest()
         .key(function(d){return d.year})
@@ -118,8 +119,8 @@ function drawPoints(pointData){
         .attr('data-toggle', 'tooltip')
         .attr('title', function(d) {
             return d.men;
-        });
-        /*
+        })
+
         .on("mouseover", function(d) {
             div.transition()
                 .duration(200)
@@ -132,7 +133,7 @@ function drawPoints(pointData){
             div.transition()
                 .duration(500)
                 .style("opacity", 0);
-        });*/
+        });
 
 
     // Select all elements with data-toggle="tooltips" in the document
